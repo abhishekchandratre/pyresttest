@@ -252,7 +252,7 @@ def parse_testsets(base_url, test_structure, test_files=set(), working_directory
                 elif key == u'test':  # Complex test with additional parameters
                     with cd(working_directory):
                         child = node[key]
-                        mytest = Test.parse_test(base_url, child, path_prefix)
+                        mytest = Test.parse_test(base_url, child, path_prefix=path_prefix)
                         tests_out.append(mytest)
                 elif key == u'benchmark':
                     benchmark = parse_benchmark(base_url, node[key], path_prefix)
@@ -889,7 +889,7 @@ def parse_command_line_args(args_in):
     parser.add_option(
         u'--vars', help='Variables to set, as a YAML dictionary', action="store", type="string")
     parser.add_option(u'--path-prefix', help='A common prefix to use for URL paths',
-        action="store", type="string")
+        action="store", type="string", dest="path-prefix")
     parser.add_option(u'--verbose', help='Put cURL into verbose mode for extra debugging power',
                       action='store_true', default=False, dest="verbose")
     parser.add_option(u'--ssl-insecure', help='Disable cURL host and peer cert verification',

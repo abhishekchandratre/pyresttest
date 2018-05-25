@@ -476,7 +476,10 @@ class Test(object):
                 else:
                     assert isinstance(configvalue, basestring) or isinstance(
                         configvalue, int)
-                    mytest.url = urlparse.urljoin(base_url, coerce_to_string(configvalue))
+                    full_path = "/".join([x.strip("/") for x in (path_prefix, coerce_to_string(configvalue))])
+                    url = urlparse.urljoin(base_url, full_path)
+                    #mytest.url = urlparse.urljoin(base_url, coerce_to_string(configvalue))
+                    mytest.url = url
             elif configelement == u'extract_binds':
                 # Add a list of extractors, of format:
                 # {variable_name: {extractor_type: extractor_config}, ... }
