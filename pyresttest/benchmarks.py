@@ -207,14 +207,14 @@ def configure_curl(self, timeout=tests.DEFAULT_TIMEOUT, context=None, curl_handl
     return curl
 
 
-def parse_benchmark(base_url, node):
+def parse_benchmark(base_url, node, path_prefix=""):
     """ Try building a benchmark configuration from deserialized configuration root node """
     node = lowercase_keys(flatten_dictionaries(node))  # Make it usable
 
     benchmark = Benchmark()
 
     # Read & set basic test parameters
-    benchmark = Test.parse_test(base_url, node, benchmark)
+    benchmark = Test.parse_test(base_url, node, benchmark, path_prefix="")
 
     # Complex parsing because of list/dictionary/singleton legal cases
     for key, value in node.items():

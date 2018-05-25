@@ -394,7 +394,7 @@ class Test(object):
         return curl
 
     @classmethod
-    def parse_test(cls, base_url, node, input_test=None, test_path=None):
+    def parse_test(cls, base_url, node, input_test=None, test_path=None, path_prefix=""):
         """ Create or modify a test, input_test, using configuration in node, and base_url
         If no input_test is given, creates a new one
 
@@ -468,7 +468,10 @@ class Test(object):
                     # Template is used for URL
                     val = lowercase_keys(configvalue)[u'template']
                     assert isinstance(val, basestring) or isinstance(val, int)
-                    url = urlparse.urljoin(base_url, coerce_to_string(val))
+
+                    full_path = "/".join([x.strip("/") for x in (path_prefix, coerce_to_string(val))])
+                    url = urlparse.urljoin(base_url, full_path)
+                    #url = urlparse.urljoin(base_url, coerce_to_string(val))
                     mytest.set_url(url, isTemplate=True)
                 else:
                     assert isinstance(configvalue, basestring) or isinstance(

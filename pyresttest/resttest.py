@@ -203,7 +203,7 @@ def parse_headers(header_string):
         return [(k.lower(), v) for k, v in header_msg.items()]
 
 
-def parse_testsets(base_url, test_structure, test_files=set(), working_directory=None, vars=None):
+def parse_testsets(base_url, test_structure, test_files=set(), working_directory=None, vars=None, path_prefix=""):
     """ Convert a Python data structure read from validated YAML to a set of structured testsets
     The data structure is assumed to be a list of dictionaries, each of which describes:
         - a tests (test structure)
@@ -241,21 +241,21 @@ def parse_testsets(base_url, test_structure, test_files=set(), working_directory
                         import_test_structure = read_test_file(importfile)
                         with cd(os.path.dirname(os.path.realpath(importfile))):
                             import_testsets = parse_testsets(
-                                base_url, import_test_structure, test_files, vars=vars)
+                                base_url, import_test_structure, test_files, vars=vars, path_prefix=path_prefix)
                             testsets.extend(import_testsets)
                 elif key == u'url':  # Simple test, just a GET to a URL
                     mytest = Test()
                     val = node[key]
                     assert isinstance(val, basestring)
-                    mytest.url = base_url + val
+                    mytest.url = base_url + path_prefix + val
                     tests_out.append(mytest)
                 elif key == u'test':  # Complex test with additional parameters
                     with cd(working_directory):
                         child = node[key]
-                        mytest = Test.parse_test(base_url, child)
+                        mytest = Test.parse_test(base_url, child, path_prefix)
                         tests_out.append(mytest)
                 elif key == u'benchmark':
-                    benchmark = parse_benchmark(base_url, node[key])
+                    benchmark = parse_benchmark(base_url, node[key], path_prefix)
                     benchmarks.append(benchmark)
                 elif key == u'config' or key == u'configuration':
                     test_config = parse_configuration(
@@ -834,8 +834,13 @@ def main(args):
     if 'absolute_urls' in args and args['absolute_urls']:
         base_url = ''
 
+    if 'path-prefix' in args and args['path-prefix'] is not None:
+        path_prefix = args['path-prefix']
+    else:
+        path_prefix = ""
+
     tests = parse_testsets(base_url, test_structure,
-                           working_directory=os.path.dirname(test_file), vars=my_vars)
+                           working_directory=os.path.dirname(test_file), vars=my_vars, path_prefix=path_prefix)
 
     # Override configs from command line if config set
     for t in tests:
@@ -883,6 +888,8 @@ def parse_command_line_args(args_in):
                       help='Extensions to import, separated by semicolons', action="store", type="string")
     parser.add_option(
         u'--vars', help='Variables to set, as a YAML dictionary', action="store", type="string")
+    parser.add_option(u'--path-prefix', help='A common prefix to use for URL paths',
+        action="store", type="string")
     parser.add_option(u'--verbose', help='Put cURL into verbose mode for extra debugging power',
                       action='store_true', default=False, dest="verbose")
     parser.add_option(u'--ssl-insecure', help='Disable cURL host and peer cert verification',
