@@ -90,6 +90,17 @@ def coerce_list_of_ints(val):
     else:
         return [int(val)]
 
+def convert_to_utf8(input):
+    """ Encodes all the unicode strings in the 'input' data structure (in json format) to utf-8"""
+    if isinstance(input, dict):
+        return {convert_to_utf8(key): convert_to_utf8(value) for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [convert_to_utf8(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('utf-8')
+    else:
+        return input
+
 class Test(object):
     """ Describes a REST test """
     _url = None
@@ -223,7 +234,9 @@ class Test(object):
             for key, value in self.extract_binds.items():
                 result = value.extract(
                     body=response_body, headers=headers, context=context)
-                context.bind_variable(key, result)
+                result_utf8 = convert_to_utf8(result)  # Encode all unicode strings with utf-8
+                result_json = json.dumps(result_utf8)  # Convert to JSON format (for double quotes)
+                context.bind_variable(key, result_json)
 
     def is_context_modifier(self):
         """ Returns true if context can be modified by this test
