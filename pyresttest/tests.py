@@ -235,8 +235,9 @@ class Test(object):
                 result = value.extract(
                     body=response_body, headers=headers, context=context)
                 result_utf8 = convert_to_utf8(result)  # Encode all unicode strings with utf-8
-                result_json = json.dumps(result_utf8)  # Convert to JSON format (for double quotes)
-                context.bind_variable(key, result_json)
+                if isinstance(result_utf8, list) or isinstance(result_utf8, dict):
+                    result_utf8 = json.dumps(result_utf8)  # Convert to JSON format (for double quotes)
+                context.bind_variable(key, result_utf8)
 
     def is_context_modifier(self):
         """ Returns true if context can be modified by this test
