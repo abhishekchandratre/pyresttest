@@ -130,6 +130,10 @@ class Test(object):
     def has_contains():
         return 'contains' in validators.VALIDATORS
 
+    @staticmethod
+    def has_notcontains():
+        return 'notcontains' in validators.VALIDATORS
+
     def ninja_copy(self):
         """ Optimization: limited copy of test object, for realize() methods
             This only copies fields changed vs. class, and keeps methods the same
